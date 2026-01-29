@@ -33,9 +33,22 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+
+
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+# VS Code settings
+.vscode/
+
+# Local / VS Code history extensions
+.history/
+.vscode-history/
+.local-history/
+.history.db
