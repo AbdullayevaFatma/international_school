@@ -6,7 +6,7 @@ import InputField from "../InputField";
 import { studentSchema } from "@/lib/formValidationSchemas";
 import { CldUploadWidget } from "next-cloudinary";
 import { CloudUpload } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useFormState, useEffect, useState } from "react";
 import { createStudent, updateStudent } from "@/lib/actions";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -19,28 +19,52 @@ const StudentForm = ({ type, data, setOpen, relatedData }) => {
   } = useForm({
     resolver: zodResolver(studentSchema),
   });
-  const [image, setImage] = useState(null);
-  const [state, formAction] = useActionState(
-    type === "create" ? createStudent : updateStudent,
-    {
-      success: false,
-      error: false,
-    },
-  );
-
-  const onSubmit = handleSubmit((formData) => {
-    formAction({ ...formData, img: image?.secure_url });
+  const [img, setImg] = useState(null);
+  const [state, setState] = useState({
+    success: false,
+    error: false,
+    message: "",
   });
 
-  const router = useRouter();
 
-  useEffect(() => {
+ 
+
+  const router = useRouter();
+   const onSubmit = handleSubmit(async (formData) => {
+    try {
+      if (type === "update" && !formData.id) {
+        formData.id = data.id;
+      }
+
+      const res =
+        type === "create"
+          ? await createStudent({ ...formData, img: img?.secure_url })
+          : await updateStudent({ ...formData, img: img?.secure_url });
+
+      if (res.success) {
+        setState({ success: true, error: false, message: "" });
+        toast.success(
+          `Student has been ${type === "create" ? "created" : "updated"}!`
+        );
+        setOpen(false);
+        router.refresh();
+      } else {
+        setState({ success: false, error: true, message: res.message || "" });
+        toast.error(res.message || "Something went wrong!");
+      }
+    } catch (err) {
+      setState({ success: false, error: true, message: err.message });
+      toast.error(err.message || "Something went wrong!");
+    }
+  });
+
+ useEffect(() => {
     if (state.success) {
-      toast(`Student has been ${type === "create" ? "created" : "updated"}!`);
       setOpen(false);
       router.refresh();
     }
-  }, [state, router, type, setOpen]);
+  }, [state, router, setOpen]);
+  
   const { grades, classes } = relatedData;
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>

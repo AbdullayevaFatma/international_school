@@ -11,7 +11,7 @@ export const classSchema = z.object({
   name: z.string().min(1, { message: "Subject name is required!" }),
   capacity: z.coerce.number().min(1, { message: "Capacity name is required!" }),
   gradeId: z.coerce.number().min(1, { message: "Grade name is required!" }),
-  supervisorId: z.coerce.string().optional(),
+  supervisorId: z.coerce.string().nullable().optional(),
 });
 
 export const teacherSchema = z.object({
@@ -27,11 +27,7 @@ export const teacherSchema = z.object({
     .or(z.literal("")),
   name: z.string().min(1, { message: "First name is required!" }),
   surname: z.string().min(1, { message: "Last name is required!" }),
-  email: z
-    .string()
-    .email({ message: "Invalid email address!" })
-    .optional()
-    .or(z.literal("")),
+ email: z.string().email({ message: "Invalid email address!" }).nullable(),
   phone: z.string().optional(),
   address: z.string(),
   img: z.string().optional(),

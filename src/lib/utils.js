@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 
 const { sessionClaims, userId } = auth();
 
-export const role = sessionClaims?.publicMetadata?.role;
+export const role = sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
 export const currentUserId = userId;
 
 const currentWorkWeek = () => {
@@ -20,8 +20,6 @@ const currentWorkWeek = () => {
     startOfWeek.setDate(today.getDate() - (dayOfWeek - 1));
   }
   startOfWeek.setHours(0,0,0,0)
-
- 
 
   return startOfWeek
 };

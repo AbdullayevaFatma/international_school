@@ -1,13 +1,10 @@
 "use server";
 
-
 import { revalidatePath } from "next/cache";
 import prisma from "./prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 
-
-
-export const createSubject = async (currentState, data) => {
+export const createSubject = async (data) => {
   try {
     await prisma.subject.create({
       data: {
@@ -17,16 +14,14 @@ export const createSubject = async (currentState, data) => {
         },
       },
     });
-
     revalidatePath("/list/subjects");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-export const updateSubject = async (currentState, data) => {
+export const updateSubject = async (data) => {
   try {
     await prisma.subject.update({
       where: {
@@ -43,13 +38,12 @@ export const updateSubject = async (currentState, data) => {
     revalidatePath("/list/subjects");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-export const deleteSubject = async (currentState, data) => {
-  const id = data.get("id");
+export const deleteSubject = async (data) => {
+  const {id} = data
 
   try {
     await prisma.subject.delete({
@@ -61,17 +55,19 @@ export const deleteSubject = async (currentState, data) => {
     revalidatePath("/list/subjects");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-
-
-export const createClass = async (currentState, data) => {
+export const createClass = async (data) => {
   try {
     await prisma.class.create({
-      data,
+      data: {
+        name: data.name,
+        capacity: parseInt(data.capacity),
+        supervisorId: data.supervisorId ?? null,
+        gradeId: parseInt(data.gradeId),
+      },
     });
 
     revalidatePath("/list/classes");
@@ -82,49 +78,52 @@ export const createClass = async (currentState, data) => {
   }
 };
 
-export const updateClass = async (currentState, data) => {
+export const updateClass = async (data) => {
   try {
     await prisma.class.update({
       where: {
-        id: data.id,
+        id: parseInt(data.id),
       },
-      data,
+      data: {
+        name: data.name,
+        capacity: parseInt(data.capacity),
+        supervisorId: data.supervisorId ?? null,
+        gradeId: parseInt(data.gradeId),
+      },
     });
 
     revalidatePath("/list/classes");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
+    let message = "Something went wrong!";
+    if (err.code === "P2002") {
+      message = "Class name must be unique!";
+    }
+    return { success: false, error: true, message };
   }
 };
 
-export const deleteClass = async (currentState, data) => {
-  const id = data.get("id");
-
+export const deleteClass = async (data) => {
+  const {id} = data
   try {
     await prisma.class.delete({
       where: {
-        id: parseInt(id),
+        id: Number(id),
       },
     });
 
     revalidatePath("/list/classes");
+
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-
-
-export const createTeacher = async (currentState, data) => {
+export const createTeacher = async (data) => {
   try {
     const client = await clerkClient();
-    
-    console.log("Creating teacher with data:", data);
-    
+
     const user = await client.users.createUser({
       username: data.username,
       password: data.password,
@@ -157,42 +156,40 @@ export const createTeacher = async (currentState, data) => {
     revalidatePath("/list/teachers");
     return { success: true, error: false };
   } catch (err) {
-    console.log("Full error:", err);
-    console.log("Clerk errors:", err.errors);
-    
- 
+   
     let errorMessage = "Something went wrong!";
-    
+
     if (err.errors && err.errors.length > 0) {
       const firstError = err.errors[0];
-      
-      if (firstError.code === 'form_password_pwned') {
-        errorMessage = "This password has been found in a data breach. Please use a stronger password.";
-      } else if (firstError.code === 'form_identifier_exists') {
+
+      if (firstError.code === "form_password_pwned") {
+        errorMessage =
+          "This password has been found in a data breach. Please use a stronger password.";
+      } else if (firstError.code === "form_identifier_exists") {
         errorMessage = "This username or email already exists.";
-      } else if (firstError.code === 'form_param_format_invalid') {
+      } else if (firstError.code === "form_param_format_invalid") {
         errorMessage = `Invalid ${firstError.meta?.paramName}: ${firstError.message}`;
       } else {
         errorMessage = firstError.message || errorMessage;
       }
     }
-    
-    return { 
-      success: false, 
+
+    return {
+      success: false,
       error: true,
-      message: errorMessage 
+      message: errorMessage,
     };
   }
 };
 
-export const updateTeacher = async (currentState, data) => {
+export const updateTeacher = async (data) => {
   if (!data.id) {
-    return { success: false, error: true };
+    return { success: false, error: true,message: "Teacher ID missing!" };
   }
 
   try {
-     const client = await clerkClient();
-     client.users.updateUser(data.id, {
+    const client = await clerkClient();
+   await client.users.updateUser(data.id, {
       username: data.username,
       ...(data.password !== "" && { password: data.password }),
       firstName: data.name,
@@ -204,7 +201,6 @@ export const updateTeacher = async (currentState, data) => {
         id: data.id,
       },
       data: {
-       ...(data.password !== "" && { password: data.password }),
         username: data.username,
         name: data.name,
         surname: data.surname,
@@ -231,8 +227,8 @@ export const updateTeacher = async (currentState, data) => {
   }
 };
 
-export const deleteTeacher = async (currentState, data) => {
-  const id = data.get("id");
+export const deleteTeacher = async (data) => {
+  const {id} = data;
 
   try {
     const client = await clerkClient();
@@ -252,9 +248,7 @@ export const deleteTeacher = async (currentState, data) => {
   }
 };
 
-
-
-export const createStudent = async (currentState, data) => {
+export const createStudent = async (data) => {
   try {
     const classItem = await prisma.class.findUnique({
       where: { id: data.classId },
@@ -264,7 +258,7 @@ export const createStudent = async (currentState, data) => {
     if (classItem && classItem.capacity === classItem._count.students) {
       return { success: false, error: true };
     }
-     const client = await clerkClient();
+    const client = await clerkClient();
 
     const user = await client.users.createUser({
       username: data.username,
@@ -301,13 +295,13 @@ export const createStudent = async (currentState, data) => {
   }
 };
 
-export const updateStudent = async (currentState, data) => {
+export const updateStudent = async ( data) => {
   if (!data.id) {
     return { success: false, error: true };
   }
 
   try {
-      const client = await clerkClient();
+    const client = await clerkClient();
     await client.users.updateUser(data.id, {
       username: data.username,
       ...(data.password !== "" && { password: data.password }),
@@ -320,7 +314,6 @@ export const updateStudent = async (currentState, data) => {
         id: data.id,
       },
       data: {
-        ...(data.password !== "" && {password:data.password}),
         username: data.username,
         name: data.name,
         surname: data.surname,
@@ -345,11 +338,10 @@ export const updateStudent = async (currentState, data) => {
   }
 };
 
-export const deleteStudent = async (currentState, data) => {
-  const id = data.get("id");
-
+export const deleteStudent = async (data) => {
+    const { id } = data;
   try {
-      const client = await clerkClient();
+    const client = await clerkClient();
     await client.users.deleteUser(id);
 
     await prisma.student.delete({
@@ -366,9 +358,7 @@ export const deleteStudent = async (currentState, data) => {
   }
 };
 
-
-
-export const createExam = async (currentState, data) => {
+export const createExam = async (data) => {
   try {
     await prisma.exam.create({
       data: {
@@ -382,12 +372,11 @@ export const createExam = async (currentState, data) => {
     revalidatePath("/list/exams");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-export const updateExam = async (currentState, data) => {
+export const updateExam = async (data) => {
   try {
     await prisma.exam.update({
       where: {
@@ -404,32 +393,23 @@ export const updateExam = async (currentState, data) => {
     revalidatePath("/list/exams");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-export const deleteExam = async (currentState, data) => {
-  const id = data.get("id");
+export const deleteExam = async ({ id }) => {
+  const examId = parseInt(id);
+  if (isNaN(examId)) return { success: false, error: true, message: "Invalid ID" };
 
   try {
-    await prisma.exam.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-
+    await prisma.exam.delete({ where: { id: examId } });
     revalidatePath("/list/exams");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
+    return { success: false, error: true, message: err.message };
   }
 };
-
-
-
-export const deleteParent = async (currentState, data) => {
+export const deleteParent = async (data) => {
   const id = data.get("id");
 
   try {
@@ -447,9 +427,7 @@ export const deleteParent = async (currentState, data) => {
   }
 };
 
-
-
-export const deleteLesson = async (currentState, data) => {
+export const deleteLesson = async (data) => {
   const id = data.get("id");
 
   try {
@@ -462,14 +440,11 @@ export const deleteLesson = async (currentState, data) => {
     revalidatePath("/list/lessons");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-
-
-export const deleteAssignment = async (currentState, data) => {
+export const deleteAssignment = async ( data) => {
   const id = data.get("id");
 
   try {
@@ -482,14 +457,11 @@ export const deleteAssignment = async (currentState, data) => {
     revalidatePath("/list/assignments");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-
-
-export const deleteResult = async (currentState, data) => {
+export const deleteResult = async (data) => {
   const id = data.get("id");
 
   try {
@@ -502,14 +474,11 @@ export const deleteResult = async (currentState, data) => {
     revalidatePath("/list/results");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-
-
-export const deleteAttendance = async (currentState, data) => {
+export const deleteAttendance = async (data) => {
   const id = data.get("id");
 
   try {
@@ -527,9 +496,7 @@ export const deleteAttendance = async (currentState, data) => {
   }
 };
 
-
-
-export const deleteEvent = async (currentState, data) => {
+export const deleteEvent = async ( data) => {
   const id = data.get("id");
 
   try {
@@ -542,14 +509,11 @@ export const deleteEvent = async (currentState, data) => {
     revalidatePath("/admin");
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
     return { success: false, error: true };
   }
 };
 
-
-
-export const deleteAnnouncement = async (currentState, data) => {
+export const deleteAnnouncement = async (data) => {
   const id = data.get("id");
 
   try {

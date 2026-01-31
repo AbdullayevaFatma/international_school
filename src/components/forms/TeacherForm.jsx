@@ -5,11 +5,8 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { teacherSchema } from "@/lib/formValidationSchemas";
 import {
-  useActionState,
   useEffect,
-  useRef,
   useState,
-  useTransition,
 } from "react";
 import { createTeacher, updateTeacher } from "@/lib/actions";
 import { useRouter } from "next/navigation";
@@ -26,22 +23,42 @@ const TeacherForm = ({ type, data, setOpen, relatedData }) => {
     resolver: zodResolver(teacherSchema),
   });
 
-  const [image, setImage] = useState(null);
-  const [isPending, startTransition] = useTransition();
-  const [state, formAction] = useActionState(
-    type === "create" ? createTeacher : updateTeacher,
-    {
-      success: false,
-      error: false,
-    },
-  );
+  const [img, setImg] = useState(null);
+ const [state, setState] = useState({
+  success: false,
+  error: false,
+  message: "",
+});
 
-  const onSubmit = handleSubmit((data) => {
-    console.log("Form data:", data);
-    startTransition(() => {
-      formAction({ ...data, img: image?.secure_url });
-    });
-  });
+const onSubmit = handleSubmit(async (formData) => {
+  try {
+   
+    if (type === "update" && !formData.id) {
+      formData.id = data.id;
+    }
+
+    const res =
+      type === "create"
+        ? await createTeacher({ ...formData, img: img?.secure_url })
+        : await updateTeacher(formData); 
+
+    if (res.success) {
+      setState({ success: true, error: false, message: "" });
+      toast.success(
+        `Teacher has been ${type === "create" ? "created" : "updated"}!`
+      );
+      setOpen(false);
+    } else {
+      setState({ success: false, error: true, message: res.message || "" });
+      toast.error(res.message || "Something went wrong!");
+    }
+  } catch (err) {
+    setState({ success: false, error: true, message: err.message });
+    toast.error(err.message || "Something went wrong!");
+  }
+});
+
+
 
   const router = useRouter();
 
@@ -145,10 +162,11 @@ const TeacherForm = ({ type, data, setOpen, relatedData }) => {
           <InputField
             label="Id"
             name="id"
-            defaultValue={data?.id}
+            value={data?.id}
             register={register}
             error={errors?.id}
             hidden
+            readOnly
           />
         )}
 

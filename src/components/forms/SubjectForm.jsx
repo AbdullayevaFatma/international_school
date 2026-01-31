@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { subjectSchema } from "@/lib/formValidationSchemas";
 import { createSubject, updateSubject } from "@/lib/actions";
-import { useActionState, useEffect } from "react";
+import { startTransition, useFormState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +19,7 @@ const SubjectForm = ({ type, data, setOpen, relatedData }) => {
   });
 
 
-  const [state, formAction] = useActionState(
+  const [state, formAction] = useFormState(
     type === "create" ? createSubject : updateSubject,
     {
       success: false,
@@ -28,10 +28,12 @@ const SubjectForm = ({ type, data, setOpen, relatedData }) => {
   );
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
+  console.log(data);
+
+  startTransition(() => {
     formAction(data);
   });
-
+});
   const router = useRouter();
 
   useEffect(() => {

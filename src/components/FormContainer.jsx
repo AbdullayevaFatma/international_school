@@ -6,7 +6,7 @@ const FormContainer = async ({ table, type, data, id }) => {
   let relatedData = {};
 
   const { userId, sessionClaims } = await auth();
-  const role = sessionClaims?.metadata?.role;
+  const role = sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
 
   const currentUserId = userId;
 

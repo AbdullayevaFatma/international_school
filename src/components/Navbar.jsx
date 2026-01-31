@@ -1,10 +1,16 @@
-import { Megaphone, User } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
+"use client";
+import { Megaphone } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
-const Navbar = async () => {
-  const user = await currentUser();
+const Navbar = () => {
+  const { user } = useUser();
+  const username = user?.username
+    ? user.username.charAt(0).toUpperCase() +
+      user.username.slice(1).toLowerCase()
+    : "";
   const role = user?.publicMetadata?.role;
+  
+
   return (
     <div className="flex items-center justify-between p-4">
       <div className="hidden md:flex  text-xs rounded-full ring-[1.5px] ring-gray-300 px-2">
@@ -23,13 +29,9 @@ const Navbar = async () => {
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs leading-3 font-medium">John Doe</span>
+          <span className="text-xs leading-3 font-medium">{username}</span>
           <span className="text-[10px] text-gray-500 text-right">{role}</span>
         </div>
-        <div className="w-10 h-10 rounded-full bg-primary  flex items-center justify-center cursor-pointer">
-          <User size={22} className="text-white" />
-        </div>
-        <UserButton />
       </div>
     </div>
   );

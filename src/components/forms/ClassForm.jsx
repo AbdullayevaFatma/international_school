@@ -5,41 +5,59 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { classSchema } from "@/lib/formValidationSchemas";
 import { createClass, updateClass } from "@/lib/actions";
-import { useActionState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 const ClassForm = ({ type, data, setOpen, relatedData }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(classSchema),
-  });
+ const { register, handleSubmit, watch, formState: { errors } } = useForm({
+  resolver: zodResolver(classSchema),
+  defaultValues: {
+    supervisorId: data?.supervisorId ?? null,
+    name: data?.name || "",
+    capacity: data?.capacity || "",
+    gradeId: data?.gradeId ?? null,
+    id: data?.id,
+  },
+});
 
-  const [state, formAction] = useActionState(
-    type === "create" ? createClass : updateClass,
-    {
-      success: false,
-      error: false,
-    }
-  );
+  const [success, setSuccess] = useState(false);
+const [error, setError] = useState(false);
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    formAction(data);
-  });
+const onSubmit = handleSubmit((formData) => {
+  if (type === "create") {
+    createClass(formData).then((res) => {
+      if (res.success) {
+        toast("Class created!");
+        setOpen(false);
+        router.refresh();
+      } else {
+        setError(true);
+      }
+    });
+  } else {
+    updateClass(formData).then((res) => {
+      if (res.success) {
+        toast("Class updated!");
+        setOpen(false);
+        router.refresh();
+      } else {
+        setError(true);
+      }
+    });
+  }
+});
+
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (state.success) {
-      toast(`Class has been ${type === "create" ? "created" : "updated"}!`);
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type, setOpen]);
+useEffect(() => {
+  if (success) {
+    toast(`Class has been ${type === "create" ? "created" : "updated"}!`);
+    setOpen(false);
+    router.refresh();
+  }
+}, [success, router, type, setOpen]);
 
   const { teachers, grades } = relatedData;
 
@@ -66,7 +84,7 @@ const ClassForm = ({ type, data, setOpen, relatedData }) => {
           error={errors?.capacity}
         />
 
-        {data && (
+        {type === "update" && (
           <InputField
             label="Id"
             name="id"
@@ -78,35 +96,39 @@ const ClassForm = ({ type, data, setOpen, relatedData }) => {
         )}
 
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Supervisor</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("supervisorId")}
-            defaultValue={data?.supervisorId}
-          >
-            {teachers.map((teacher) => (
-              <option value={teacher.id} key={teacher.id} selected={data && teacher.id === data.teacherId}>
-                {teacher.name} {teacher.surname}
-              </option>
-            ))}
-          </select>
+  <label className="text-xs text-gray-500">Supervisor</label>
+<select
+  {...register("supervisorId", {
+    setValueAs: (v) => (v === "" ? null : v),
+  })}
+  value={watch("supervisorId") ?? ""}
+>
+  <option value=""> - Select - </option>
+  {teachers.map((teacher) => (
+    <option value={teacher.id} key={teacher.id}>
+      {teacher.name} {teacher.surname}
+    </option>
+  ))}
+</select>
 
-          {errors.supervisorId?.message && (
-            <p className="text-xs text-red-400">
-              {errors.supervisorId.message.toString()}
-            </p>
-          )}
-        </div>
+
+  {errors.supervisorId?.message && (
+    <p className="text-xs text-red-400">
+      {errors.supervisorId.message.toString()}
+    </p>
+  )}
+</div>
+
 
         <div className="flex flex-col gap-2 w-full md:w-1/4">
           <label className="text-xs text-gray-500">Grade</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("gradeId")}
-            defaultValue={data?.gradeId}
+            {...register("gradeId", { valueAsNumber: true })}
+            defaultValue={data?.gradeId || ""}
           >
             {grades.map((grade) => (
-              <option value={grade.id} key={grade.id} selected={data && grade.id === data.gradeId}>
+              <option value={grade.id} key={grade.id}>
                 {grade.level}
               </option>
             ))}
@@ -120,7 +142,7 @@ const ClassForm = ({ type, data, setOpen, relatedData }) => {
         </div>
       </div>
 
-      {state.error && (
+      {error && (
         <span className="text-red-500">Something went wrong!</span>
       )}
 

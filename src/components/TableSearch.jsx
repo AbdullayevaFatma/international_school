@@ -1,30 +1,40 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 const TableSearch = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const value = e.currentTarget[0].value;
+  const [value, setValue] = useState(searchParams.get("search") || "");
 
-    const params = new URLSearchParams(window.location.search);
-    params.set("search", value);
-    router.push(`${window.location.pathname}?${params}`);
-  };
+ 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (value) {
+        params.set("search", value);
+      } else {
+        params.delete("search");
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }, 300); 
+
+    return () => clearTimeout(handler);
+  }, [value, pathname, router]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full md:w-auto  text-xs rounded-full ring-[1.5px] ring-gray-300 px-2"
-    >
+    <div className="w-full md:w-auto text-xs rounded-full ring-[1.5px] ring-gray-300 px-2">
       <input
         type="text"
         placeholder="Search..."
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         className="w-50 p-2 bg-transparent outline-none"
       />
-    </form>
+    </div>
   );
 };
 

@@ -14,9 +14,9 @@ import {
   Megaphone,
   UserCircle,
   Settings,
-  LogOut,
 } from "lucide-react";
 import { currentUser } from "@clerk/nextjs/server";
+import LogoutButton from "./LogoutButton";
 
 const menuItems = [
   {
@@ -100,21 +100,9 @@ const menuItems = [
     title: "OTHER",
     items: [
       {
-        label: "Profile",
-        href: "/profile",
-        icon: UserCircle,
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        label: "Settings",
-        href: "/settings",
-        icon: Settings,
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
         label: "Logout",
         href: "/logout",
-        icon: LogOut,
+        icon: null,
         visible: ["admin", "teacher", "student", "parent"],
       },
     ],
@@ -134,7 +122,9 @@ const Menu = async () => {
 
           {group.items.map((item) => {
             if (!item.visible.includes(role)) return null;
-
+            if (item.label === "Logout") {
+              return <LogoutButton key="logout" />;
+            }
             const Icon = item.icon;
 
             return (

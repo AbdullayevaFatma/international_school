@@ -114,42 +114,57 @@ const FormModal = ({ table, type, data, id, relatedData }) => {
   };
 
   const Form = () => {
-    const [state, formAction] = useActionState(deleteActionMap[table], {
-      success: false,
-      error: false,
-    });
+     const [state, setState] = useState({
+    success: false,
+    error: false,
+    message: "",
+  });
 
-    useEffect(() => {
-      if (state.success) {
-        toast(`${table} has been deleted!`);
-        setOpen(false);
-
-        setTimeout(() => {
-          router.refresh();
-        }, 300);
+    const handleDelete = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await deleteActionMap[table]({ id }); 
+      if (res.success) {
+        setState({ success: true, error: false, message: "" });
+      } else {
+        setState({ success: false, error: true, message: res.message || "" });
       }
-    }, [state.success]);
-
-    return type === "delete" && id ? (
-      <form action={formAction} className="p-4 flex flex-col gap-4">
-        <input type="text" name="id" value={id} hidden readOnly />
-        <span className="text-center font-medium">
-          All data will be lost. Are you sure you want to delete this {table}?
-        </span>
-        <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-red-800">
-          Delete
-        </button>
-      </form>
-    ) : type === "create" || type === "update" ? (
-      forms[table] ? (
-        forms[table](handleClose, type, data, relatedData)
-      ) : (
-        <div className="p-4 text-center">Form not found for {table}!</div>
-      )
-    ) : (
-      <div className="p-4 text-center">Invalid form type!</div>
-    );
+    } catch (err) {
+      setState({ success: false, error: true, message: err.message });
+    }
   };
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success(`${table} has been deleted!`);
+      setOpen(false);
+      setTimeout(() => router.refresh(), 300);
+    }
+    if (state.error) {
+      toast.error(state.message || "Something went wrong!");
+    }
+  },[state.success, state.error, state.message]);
+
+  return type === "delete" && id ? (
+    <form onSubmit={handleDelete} className="p-4 flex flex-col gap-4">
+      <input type="text" name="id" value={id} hidden readOnly />
+      <span className="text-center font-medium">
+        All data will be lost. Are you sure you want to delete this {table}?
+      </span>
+      <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center hover:bg-red-800">
+        Delete
+      </button>
+    </form>
+  ) : type === "create" || type === "update" ? (
+    forms[table] ? (
+      forms[table](handleClose, type, data, relatedData)
+    ) : (
+      <div className="p-4 text-center">Form not found for {table}!</div>
+    )
+  ) : (
+    <div className="p-4 text-center">Invalid form type!</div>
+  );
+};
 
   return (
     <>

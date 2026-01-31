@@ -17,15 +17,42 @@
   --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #212224;
-  }
-}
+
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+.cl-userButtonBox {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  background-color: #01305f !important; 
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+
+.cl-internal-1eejwbq{
+  background-color: #01305f !important;
+}
+.cl-internal-1jnae1p{
+    background-color: #01305f !important;
+}
+
+
+.cl-internal-l2l775{
+ background-color: #01305f !important; 
+}
+.cl-internal-1k7jtru{
+  display: none !important;
+}
+.cl-internal-pe6vm4{
+  display: none !important;
+}
+
+
