@@ -52,7 +52,7 @@ const TeacherListPage = async ({ searchParams }) => {
     }),
     prisma.teacher.count({ where: query })
   ]);
-
+  
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <div className="flex items-center justify-between">
@@ -115,8 +115,8 @@ const TeacherListPage = async ({ searchParams }) => {
           >
             <td className="flex items-center gap-4 p-4">
               <Image
-                src={item.img || "/avatar.png"}
-                alt=""
+                src={item.img || "/profile_icon.jpg"}
+                alt="profile image"
                 width={40}
                 height={40}
                 className="md:hidden xl:block w-10 h-10 rounded-full object-cover"

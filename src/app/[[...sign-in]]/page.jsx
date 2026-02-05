@@ -14,10 +14,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (isLoaded && isSignedIn && user) {
       const role = user.publicMetadata?.role;
-      console.log("Client-side role detected:", role);
-
       if (role) {
-        console.log("Client-side redirecting to /" + role);
         router.push(`/${role}`);
       }
     }
@@ -25,7 +22,7 @@ export default function LoginPage() {
 
   if (!isLoaded) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen text-white flex items-center justify-center bg-primary">
         Loading...
       </div>
     );
@@ -33,7 +30,7 @@ export default function LoginPage() {
 
   if (isSignedIn) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen text-white flex items-center justify-center bg-primary">
         Redirecting...
       </div>
     );
@@ -60,7 +57,7 @@ export default function LoginPage() {
             <Clerk.Input
               type="text"
               required
-              className="p-2 rounded-md ring-1 ring-gray-300"
+              className="p-2 rounded-md ring-1 ring-gray-300 focus:outline-none"
             />
             <Clerk.FieldError className="text-xs text-red-400" />
           </Clerk.Field>
@@ -72,7 +69,7 @@ export default function LoginPage() {
             <Clerk.Input
               type="password"
               required
-              className="p-2 rounded-md ring-1 ring-gray-300"
+              className="p-2 rounded-md ring-1 ring-gray-300 focus:outline-none"
             />
             <Clerk.FieldError className="text-xs text-red-400" />
           </Clerk.Field>
