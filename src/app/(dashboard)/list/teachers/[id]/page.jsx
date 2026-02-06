@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Announcements from "@/components/Announcements";
 import BigCalendarContainer from "@/components/BigCalendarContainer";
 import FormContainer from "@/components/FormContainer";
@@ -24,7 +26,6 @@ const SingleTeacherPage = async({params}) => {
 
 
   const { sessionClaims } = await auth();
-  console.log(sessionClaims);
   const role = sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
 
   

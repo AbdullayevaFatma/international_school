@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { examSchema } from "@/lib/formValidationSchemas";
 import { createExam, updateExam } from "@/lib/actions";
-import { useFormState, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 

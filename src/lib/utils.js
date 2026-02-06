@@ -1,9 +1,27 @@
+
 import { auth } from "@clerk/nextjs/server";
 
-const { sessionClaims, userId } = auth();
+export const role = () => {
+  try {
+    const { sessionClaims } = auth();
+    return (
+      sessionClaims?.metadata?.role ||
+      sessionClaims?.publicMetadata?.role
+    );
+  } catch {
+    return null;
+  }
+};
 
-export const role = sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
-export const currentUserId = userId;
+export const currentUserId = () => {
+  try {
+    const { userId } = auth();
+    return userId ?? null;
+  } catch {
+    return null;
+  }
+};
+
 
 const currentWorkWeek = () => {
   const today = new Date();
