@@ -18,18 +18,20 @@ export const metadata = {
     ],
     apple: "/apple-touch-icon.png"
   },
-    manifest: "/site.webmanifest"
+  manifest: "/site.webmanifest"
 };
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
-    <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
-        {children}
-        <ToastContainer position="bottom-right" theme="dark"/>
-      </body>
-    </html>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || undefined}
+    >
+      <html lang="en">
+        <body className={`${inter.variable} antialiased`}>
+          {children}
+          <ToastContainer position="bottom-right" theme="dark"/>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
