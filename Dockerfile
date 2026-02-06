@@ -20,7 +20,7 @@ COPY . .
 # Dummy DATABASE_URL for Prisma generate
 ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
 
-# Clerk'in kendi test key'lerini kullan (bunlar public, herkes kullanabilir)
+# Clerk test keys for build
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2xlcmsuaW5jbHVkZWQua2F0eWRpZC05Mi5sY2wuZGV2JA"
 ENV CLERK_SECRET_KEY="sk_test_example"
 
@@ -41,17 +41,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy files with correct permissions
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 10000
 
-ENV PORT=3000
+
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["npm", "run", "start"]
