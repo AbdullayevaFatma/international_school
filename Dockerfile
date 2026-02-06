@@ -20,10 +20,14 @@ COPY . .
 # Dummy DATABASE_URL for Prisma generate
 ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
 
+# Clerk'in kendi test key'lerini kullan (bunlar public, herkes kullanabilir)
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2xlcmsuaW5jbHVkZWQua2F0eWRpZC05Mi5sY2wuZGV2JA"
+ENV CLERK_SECRET_KEY="sk_test_example"
+
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Build Next.js (Clerk keys boş olabilir, undefined olarak geçer)
+# Build Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
