@@ -13,14 +13,13 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Generate Database
-RUN npx prisma generate
+
 
 # Build the Next.js application
 RUN npm run build
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 10000
 
 # Start the Next.js application
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]
