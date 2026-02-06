@@ -14,8 +14,6 @@ const StudentListPage = async ({ searchParams }) => {
   const role =
     sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
 
-  console.log("Student List Page - Role:", role);
-  console.log("Is Admin?:", role === "admin");
 
   const { page, ...queryParams } = await searchParams;
   const p = page ? parseInt(page) : 1;
@@ -117,7 +115,7 @@ const StudentListPage = async ({ searchParams }) => {
           >
             <td className="flex items-center gap-4 p-4">
               <Image
-                src={item.img || "/avatar.png"}
+                src={item.img || "/profile_icon.jpg"}
                 alt=""
                 width={40}
                 height={40}

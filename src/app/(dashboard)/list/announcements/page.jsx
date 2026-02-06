@@ -13,8 +13,7 @@ const AnnouncementListPage = async ({ searchParams }) => {
     sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
   const currentUserId = userId;
 
-  console.log("Announcement List Page - Role:", role);
-  console.log("Announcement List Page - User ID:", currentUserId);
+
 
   const { page, ...queryParams } = await searchParams;
   const p = page ? parseInt(page) : 1;
@@ -44,7 +43,7 @@ const AnnouncementListPage = async ({ searchParams }) => {
     query.OR = [{ classId: null }, { class: roleConditions[role] || {} }];
   }
 
-  console.log("Announcement Query:", JSON.stringify(query, null, 2));
+
 
   const [data, count] = await prisma.$transaction([
     prisma.announcement.findMany({
@@ -58,8 +57,7 @@ const AnnouncementListPage = async ({ searchParams }) => {
     prisma.announcement.count({ where: query }),
   ]);
 
-  console.log("Announcement Data:", data);
-  console.log("Announcement Count:", count);
+ 
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

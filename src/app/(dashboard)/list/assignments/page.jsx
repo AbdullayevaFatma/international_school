@@ -12,8 +12,7 @@ const AssignmentListPage = async ({ searchParams }) => {
   const role = sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
   const currentUserId = userId;
 
-  console.log("Assignment List Page - Role:", role);
-  console.log("Assignment List Page - User ID:", currentUserId);
+
 
   const { page, ...queryParams } = await searchParams;
   const p = page ? parseInt(page) : 1;

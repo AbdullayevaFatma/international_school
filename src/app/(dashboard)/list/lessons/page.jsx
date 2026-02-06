@@ -12,8 +12,7 @@ const LessonListPage = async ({ searchParams }) => {
   const role =
     sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
 
-  console.log("Lesson List Page - Role:", role);
-  console.log("Is Admin?:", role === "admin");
+ 
 
   const { page, ...queryParams } = await searchParams;
   const p = page ? parseInt(page) : 1;

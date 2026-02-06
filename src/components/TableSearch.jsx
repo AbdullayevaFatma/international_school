@@ -7,6 +7,7 @@ const TableSearch = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  console.log("pathhhh",pathname);
 
   const [value, setValue] = useState(searchParams.get("search") || "");
 
@@ -14,10 +15,13 @@ const TableSearch = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
+      
       if (value) {
         params.set("search", value);
+        params.delete("page"); 
       } else {
         params.delete("search");
+        params.delete("page");
       }
       router.push(`${pathname}?${params.toString()}`);
     }, 300); 

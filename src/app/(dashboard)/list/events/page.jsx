@@ -13,8 +13,7 @@ const EventListPage = async ({ searchParams }) => {
     sessionClaims?.metadata?.role || sessionClaims?.publicMetadata?.role;
   const currentUserId = userId;
 
-  console.log("Event List Page - Role:", role);
-  console.log("Event List Page - User ID:", currentUserId);
+ 
 
   const { page, ...queryParams } = await searchParams;
   const p = page ? parseInt(page) : 1;
@@ -44,7 +43,7 @@ const EventListPage = async ({ searchParams }) => {
     query.OR = [{ classId: null }, { class: roleConditions[role] || {} }];
   }
 
-  console.log("Event Query:", JSON.stringify(query, null, 2));
+ 
 
   const [data, count] = await prisma.$transaction([
     prisma.event.findMany({
@@ -58,8 +57,7 @@ const EventListPage = async ({ searchParams }) => {
     prisma.event.count({ where: query }),
   ]);
 
-  console.log("Event Data:", data);
-  console.log("Event Count:", count);
+
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
