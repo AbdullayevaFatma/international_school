@@ -19,8 +19,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma Client (dummy DATABASE_URL for build)
+# Set dummy environment variables for build
 ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_dummy"
+ENV CLERK_SECRET_KEY="sk_test_dummy"
+ENV NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="dummy"
+ENV NEXT_PUBLIC_CLOUDINARY_API_KEY="dummy"
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -53,5 +58,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start script will regenerate Prisma with real DATABASE_URL
+# Start script will regenerate Prisma with real environment variables
 CMD ["npm", "run", "start"]
