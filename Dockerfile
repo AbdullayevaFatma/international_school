@@ -11,16 +11,17 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Sadece DATABASE_URL dummy
+#
 ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_ZXF1YWwtc3BpZGVyLTkxLmNsZXJrLmFjY291bnRzLmRldiQ"
+ENV CLERK_SECRET_KEY="sk_test_dummy"
 
 # Prisma generate
 RUN npx prisma generate
 
-# Build - Clerk validation'ı skip et
+# Build
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV SKIP_ENV_VALIDATION=1
-RUN npm run build || true
+RUN npm run build
 
 FROM base AS runner
 WORKDIR /app
