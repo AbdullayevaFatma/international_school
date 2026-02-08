@@ -29,7 +29,18 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={`${inter.variable} antialiased`}>
           {children}
-          <ToastContainer position="bottom-right" theme="dark"/>
+          <ToastContainer position="bottom-right"
+  theme="colored"
+  toastClassName={({ type }) => {
+    switch (type) {
+      case "success":
+        return "bg-primary text-white";
+      case "error":
+        return "bg-secondary text-white";
+      default:
+        return "bg-gray-800 text-white";
+    }
+  }}/>
         </body>
       </html>
     </ClerkProvider>
